@@ -53,9 +53,7 @@
   <ItemGroup>
     <Content Include="CustomerVisit.html" />
     <Content Include="FuelPurchase.html" />
-    <Content Include="jumbo.html" />
     <Content Include="index.html" />
-    <Content Include="jarvis.html" />
     <Content Include="kendo\js\jquery.min.js" />
     <Content Include="kendo\js\kendo.mobile.min.js" />
     <Content Include="kendo\js\kendo.web.min.js" />
