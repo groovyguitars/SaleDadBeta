@@ -51,14 +51,22 @@
     <Resource Include="App_Resources\Android\drawable-ldpi\icon.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CustomerVisit.html" />
+    <Content Include="FuelPurchase.html" />
+    <Content Include="jumbo.html" />
     <Content Include="index.html" />
+    <Content Include="jarvis.html" />
     <Content Include="kendo\js\jquery.min.js" />
     <Content Include="kendo\js\kendo.mobile.min.js" />
+    <Content Include="kendo\js\kendo.web.min.js" />
+    <Content Include="kendo\styles\kendo.common.min.css" />
+    <Content Include="kendo\styles\kendo.default.min.css" />
+    <Content Include="kendo\styles\kendo.mobile.all.min.css" />
     <Content Include="kendo\styles\images\ios-sprite.png" />
     <Content Include="kendo\styles\images\icons.png" />
     <Content Include="kendo\styles\images\iconmasks.svg" />
     <Content Include="kendo\styles\images\android-sprite.png" />
-    <Content Include="kendo\styles\kendo.mobile.all.min.css" />
+    <Content Include="MyData.html" />
     <Content Include="scripts\hello-world.js" />
     <Content Include="styles\main.css" />
     <Content Include="cordova.ios.js">

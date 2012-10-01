@@ -1,221 +1,187 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>jarvis</title>
-    
-    <meta charset="utf-8">
- 
- 
-    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
-    <script src="kendo/js/jquery.min.js"></script>
-    <script src="kendo/js/kendo.mobile.min.js"></script>
-    
-    <link href="kendo/styles/kendo.common.min.css" rel="stylesheet" />
-    <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
- 
+        <title></title>
+        <meta charset="utf-8" />
+        <script src="cordova.js"></script>
+        <script src="kendo/js/jquery.min.js"></script>
+        <script src="kendo/js/kendo.mobile.min.js"></script>
+        <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+        <script src="scripts/hello-world.js"></script>
+
+        <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
+        <link href="styles/main.css" rel="stylesheet" />
+    </head>
+<body>
+
+<div data-role="view" data-title="SaleDad Login" id="login" default-layout="default">
+        <div style="width: 100%; text-align: center">
+            <h1>
+                Please Login</h1>
+            <br />
+            <div style="text-align: left;">
+                <ul data-role="listview" data-style="inset">
+                    <li>
+                        <label for="username">
+                            Username:</label>
+                        <input type="text" id="username" /></li>
+                    <li>
+                        <label for="password">
+                            Password:</label>
+                        <input type="password" id="password" /></li>
+                </ul>
+            </div>
+            <a id="btnLogin" data-click="login" data-role="button" style="display: block; margin: 2em;
+                text-align: center;">Login</a>
+        </div>
+    </div>
+
+    <div data-role="layout" data-id="default">
+        <div data-role="header">
+            <div data-role="navbar">
+                <span data-role="view-title"></span><a class="nav-button" data-align="right" data-role="button"
+                    data-click="AppRefresh">refresh</a> <a class="nav-button" data-align="left" data-role="button"
+                        data-click="logout">logout</a>
+            </div>
+        </div>
+        <div data-role="footer">
+            <div data-role="tabstrip" id="tabStrip" data-select="onSelect">
+                <a data-icon="search" id="MyData.html">Reports</a> 
+                <a data-icon="contacts" id="CustomerVisit.html">Visit</a> 
+                <a data-icon="add" id="FuelPurchase.html">Fuel</a>
+            </div>
+        </div>
+    </div>
     <script type="text/javascript">
-        function onBodyLoad()
-        {
-            document.addEventListener("deviceready", onDeviceReady, false);
-            // Use the following for testing in the browser
-            getData(onResult);
-   }
- 
-        /* When this function is called, Cordova has been initialized and is ready to roll */
-        /* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
-         see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
-         for more details -jm */
-        function onDeviceReady() {
-            getData(onResult);
+
+        function AppRefresh() {
+            document.location.reload(true);
         }
- 
-        function getData(callback) {
-            var template =  kendo.template($("#customListViewTemplate").html());
-            var dataSource = new kendo.data.DataSource({
-                transport: {
-                    read: {
-                        url: 'http://local.yahooapis.com/LocalSearchService/V3/localSearch?appid=YahooDemo&query='+search.value+'&zip='+zip.value+'&output=json&results=15',
-                        dataType: "jsonp" // JSONP (JSON with padding) is required for cross-domain AJAX
+
+        // Check To See If User Is Currently Logged-In
+        function onSelect(t) {
+            var ds = new kendo.data.DataSource({
+                transport:
+                {
+                    read:
+                    {
+                        url: "http://www.collogix.com/SaleDad/SaleDad.asmx/CheckLogIn",
+                        dataType: 'jsonp'
                     }
                 },
-                schema: {
-                    data: "ResultSet.Result"
+                schema:
+                {
+                    data: "d"
                 },
-                error: function(e) {
-                    console.log("Error " + e);
+                change: function (e) {
+                    var rtnVal = ds.data();
+
+                    if (rtnVal[0].Message.toString() == "No User") {
+                        app.navigate("#login");
+                        alert("Login First!");
+                    }
+                    else {
+                        app.navigate(t.item.prop("id"));
+                        //alert(t.item.prop("id"));
+                    }
                 },
-                change: function() {
-                    $("#resultListView").html(kendo.render(template, this.view()));
+                error: function (e) {
+                    alert('CheckLogIn Failed.\r\nStatus = ' + e.status + '.\r\n' + e.statusText);
                 }
             });
-            dataSource.sort = ({field: "Distance", dir: "asc"});
-            dataSource.read();
-            $("#resultListView").kendoMobileListView({dataSource:dataSource,template: $("#customListViewTemplate").html()});
+
+            ds.read();
+            
         }
- 
-        function onResult(resultData) {
-            console.log("Results " + resultData);
-            $("#resultListView").kendoMobileListView({dataSource: kendo.data.DataSource.create({data:resultData,sort: { field: "Distance", dir: "asc" }}),
-                template: $("#customListViewTemplate").html()});
+
+        function logout() {
+            var ds = new kendo.data.DataSource({
+                transport:
+                {
+                    read:
+                    {
+                        url: "http://www.collogix.com/SaleDad/SaleDad.asmx/LogOut",
+                        dataType: 'jsonp'
+                    }
+                },
+                schema:
+                {
+                    data: "d"
+
+                },
+                change: function (e) {
+                    var rtnVal = ds.data();
+                    alert(rtnVal[0].Message);
+                    app.navigate("#login");
+                },
+                error: function (e) {
+                    // dont know if this is right either 
+                    alert('Logout failed.\r\nStatus = ' + e.status + '.\r\n' + e.statusText);
+                }
+            });
+
+            ds.read();
+
+
         }
+
+        function login() {
+            //Setup Object For Parameters
+            var args = new Object();
+            args.username = $("#username").val();
+            args.password = $("#password").val();
+
+            var ds = new kendo.data.DataSource({
+
+                transport:
+                {
+                    read:
+                    {
+                        url: "http://www.collogix.com/SaleDad/SaleDad.asmx/AuthLogin",
+                        dataType: 'jsonp',
+                        data: {
+                            username: kendo.stringify(args.username),
+                            password: kendo.stringify(args.password)
+
+                        }
+
+                    }
+                },
+                schema:
+                {
+                    data: "d"
+
+                },
+                change: function (e) {
+                    var loginStatus = ds.data();
+                    if (loginStatus[0].Message.toString() != "Success") {
+                        app.navigate("#login");
+                        alert(loginStatus[0].Message);
+                    }
+                    else {
+                        //alert(loginStatus[0].Message);
+                        app.navigate("MyData.html");
+                    }
+                },
+                error: function (e) {
+                    // dont know if this is right either 
+                    alert('LoginValid failed.\r\nStatus = ' + e.status + '.\r\n' + e.statusText);
+                }
+            });
+
+            ds.read();
+        }
+
     </script>
-</head>
- 
-<body onload="onBodyLoad()">
-<script type="text/x-kendo-template" id="customListViewTemplate">
-    <h4>${Title}</h4>
-    <p>${Address}</p>
-    <h4 id="distance">${Distance} miles</h4>
-    <a data-role="button" class="details-link">Visit Website</a>
-</script>
- 
-<div id="resultsView" data-role="view" data-title="Biz Finder" data-layout="app">
-    <div class="form">
-        <div id="leftcol"></div>
-            <div id="centercol">
-                <label id="lblZip" for="zip">Zip</label>
-                <input id="zip" type="search" value="90210" maxlength="5" size="5" onchange="getData(onResult)"/>
-                <label for="search">Search</label>
-                <input id="search" size="10" maxlength="10" type="search" value="spa" onchange="getData(onResult)"/>
-            </div>
-        <div id="rightcol"></div>
-    </div>
-    <ul id="resultListView"/>
-</div>
- 
-<div id="settings" data-role="view" data-title="Settings" data-layout="app">
-    <h2>This is the Settings View...</h2>
-</div>
- 
-<div id="about" data-role="view" data-title="About" data-layout="app">
-    <h2>This is the About View...</h2>
-</div>
- 
-<!-- define multi-use layout for header/footer -->
-<div data-role="layout" data-id="app">
-    <header data-role="header">
-        <div data-role="navbar">
-            <span id="ttl" data-role="view-title"></span>
-            <a data-align="right"  data-role="button" data-icon="settings" href="#settings"></a>
-            <a data-align="left" data-role="backbutton" href="#index">Back</a>
-        </div>
-    </header>
-    <footer data-role="footer">
-        <div data-role="tabstrip">
-            <a href="#resultsView" data-icon="search">Search</a>
-            <a href="#about" data-icon="about">About</a>
-        </div>
-    </footer>
-</div>
- 
-<style scoped>
-    #customListViewTemplate {
-        margin:0;
-        padding-right: 5px;
-    }
- 
-    #leftcol {
-        position:relative;
-        top:-10px;
-        left:-10px;
-        float:left;
-        width:2%;
-        margin:0 0 -10px 0;
-        padding:10px;
-        z-index:100;
-    }
- 
-    #rightcol {
-        position:relative;
-        top:-10px;
-        right:-10px;
-        float:right;
-        voice-family: "\"}\"";
-        voice-family:inherit;
-        width:5%;
-        margin:0 0 -10px 0;
-        padding:10px;
-        z-index:99;
-    }
-     
-    #settings h2, #about h2 {
-        margin: 10px;
-        font-family: Tahoma;
-    }
- 
-    #centercol {
-        position:relative;
-        padding-left: 30%;
-    }
-    .form h3 {
-        padding-left: 30%;
-    }
     
-    .form {
-        width: 100%;
-        padding-top: 10px;
-        padding-bottom: 15px;
-        padding-left: 12px;
- 
-        background-size: 100% auto;
-        background-image: -moz-linear-gradient(center top , rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.45) 6%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.15) 50%, rgba(100, 100, 100, 0));
-        background-image: -webkit-gradient(linear, 50% 0, 50% 100%, color-stop(0, rgba(255, 255, 255, 0.5)), color-stop(0.06, rgba(255, 255, 255, 0.45)), color-stop(0.5, rgba(255, 255, 255, 0.2)), color-stop(0.5, rgba(255, 255, 255, 0.15)), color-stop(1, rgba(100, 100, 100, 0)));
-        background-color: #ef652a;
-        color: #fff;
-    }
-     
-    h3, h4, p {
-        margin:0;
-        padding:0;
-        font-family: fantasy;
-    }
- 
-    label {
-        font-size: 18px;
-    }
-    .km-ios p {
-        color: #545454;
-        font-size: 18px;
-    }
-    .km-android p {
-        color: #FFFFFF;
-        font-size: 16px;
-    }
-    .km-android #distance {
-        color: #CCCCCC;
-        font-size: 16px;
-    }
-    .km-ios #distance {
-        color: #808080;
-        font-size: 16px;
-    }
-    #distance {
-        color: #808080;
-        font-size: 16px;
-    }
-    #content {
-        margin: 0px;
-        padding: 0px;
-    }
-    #header {
-        background-color: pink;
-    }
-    #resultListView {
-        background-size: 100%;
-        background-image: -moz-linear-gradient(center top , rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.45) 6%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.15) 50%, rgba(100, 100, 100, 0));
-        background-image: -webkit-gradient(linear, 50% 0, 50% 100%, color-stop(0, rgba(255, 255, 255, 0.5)), color-stop(0.06, rgba(255, 255, 255, 0.45)), color-stop(0.5, rgba(255, 255, 255, 0.2)), color-stop(0.5, rgba(255, 255, 255, 0.15)), color-stop(1, rgba(100, 100, 100, 0)));
-        margin: -10px;
-        padding: 5px;
-    }
-    .details-link {
-        margin-top: -1em;
-        position: absolute;
-        right: 0.6em;
-        top: 50%;
-    }
-    </style>
-    <script>
-        window.kendoMobileApplication = new kendo.mobile.Application(document.body);
+    <script type="text/javascript">
+        var app = new kendo.mobile.Application(
+        document.body,
+        {
+            layout: "default",
+            transition: 'slide',
+            initial: 'login'
+        });
     </script>
-    </body>
+</body>
 </html>
